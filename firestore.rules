@@ -1,0 +1,50 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'waiyanhtut476@gmail.com' ||
+        request.auth.uid != null
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128;
+    }
+
+    function isValidMenuItem(data) {
+      return data.keys().hasAll(['name', 'category', 'price', 'emoji']) &&
+        data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+        data.category is string && data.category.size() > 0 && data.category.size() <= 50 &&
+        data.price is number && data.price >= 0 &&
+        data.emoji is string && data.emoji.size() > 0 && data.emoji.size() <= 10 &&
+        (!('englishName' in data) || (data.englishName is string && data.englishName.size() <= 100)) &&
+        (!('description' in data) || (data.description is string && data.description.size() <= 500)) &&
+        (!('badge' in data) || (data.badge is string && data.badge.size() <= 50)) &&
+        (!('isPopular' in data) || data.isPopular is bool) &&
+        (!('imageUrl' in data) || (data.imageUrl is string && data.imageUrl.size() <= 2097152));
+    }
+
+    // Menu Items Collection
+    match /menuItems/{itemId} {
+      // Anyone can view the menu items
+      allow get, list: if true;
+
+      // Only authenticated admin can create, update, or delete menu items
+      allow create: if isAdmin() && isValidId(itemId) && isValidMenuItem(request.resource.data);
+      allow update: if isAdmin() && isValidId(itemId) && isValidMenuItem(request.resource.data);
+      allow delete: if isAdmin() && isValidId(itemId);
+    }
+  }
+}

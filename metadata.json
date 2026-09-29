@@ -1,0 +1,6 @@
+{
+  "name": "Golden Monstate Kitchen",
+  "description": "မြန်မာ့ရိုးရာအစားအစာ နှင့် မွန်ရိုးရာဟင်းလျာများ - Golden Monstate Kitchen Myanmar Traditional Restaurant",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

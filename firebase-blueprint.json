@@ -1,0 +1,71 @@
+{
+  "entities": {
+    "MenuItem": {
+      "title": "MenuItem",
+      "description": "A food item or drink offered at Golden Monstate Kitchen",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Burmese dish name",
+          "maxLength": 100
+        },
+        "englishName": {
+          "type": "string",
+          "description": "English dish name",
+          "maxLength": 100
+        },
+        "category": {
+          "type": "string",
+          "description": "Dish category",
+          "enum": ["မုန့်ဟင်းခါး", "ဟင်း", "သုပ်", "ကြော်", "အချိုပွဲ", "သောက်စရာ"]
+        },
+        "price": {
+          "type": "number",
+          "description": "Dish price in Kyats"
+        },
+        "emoji": {
+          "type": "string",
+          "description": "Food representation emoji",
+          "maxLength": 10
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "Optional uploaded food photo Data URL or image link",
+          "maxLength": 2097152
+        },
+        "description": {
+          "type": "string",
+          "description": "Ingredients and description",
+          "maxLength": 500
+        },
+        "badge": {
+          "type": "string",
+          "description": "Special highlight badge",
+          "maxLength": 50
+        },
+        "isPopular": {
+          "type": "boolean",
+          "description": "Popular dish tag"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Update timestamp"
+        }
+      },
+      "required": ["name", "category", "price", "emoji"]
+    }
+  },
+  "firestore": {
+    "/menuItems/{itemId}": {
+      "schema": "MenuItem",
+      "description": "Menu items available at Golden Monstate Kitchen"
+    }
+  }
+}
