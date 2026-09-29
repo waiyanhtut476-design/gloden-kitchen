@@ -356,10 +356,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
   const handleLogout = async () => {
     try {
+      localStorage.removeItem('golden_admin_logged_in');
       await signOut(auth);
       onClose();
     } catch (err) {
       console.error('Logout error:', err);
+      localStorage.removeItem('golden_admin_logged_in');
+      onClose();
     }
   };
 

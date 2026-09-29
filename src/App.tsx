@@ -14,7 +14,7 @@ import { AdminEditModal } from './components/AdminEditModal';
 import { MenuItem, CartItem } from './types/menu';
 import { MENU_ITEMS } from './data/menu';
 import { db, auth, hasFirebaseConfig, handleFirestoreError, OperationType } from './lib/firebase';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, getRedirectResult, signOut } from 'firebase/auth';
 import { collection, onSnapshot, doc, setDoc, deleteDoc, writeBatch } from 'firebase/firestore';
 import { ShoppingBag, Check } from 'lucide-react';
 
@@ -22,7 +22,9 @@ export default function App() {
   // Initial state uses authentic default MENU_ITEMS so website is immediately usable, syncing in real-time with Firestore
   const [menuItems, setMenuItems] = useState<MenuItem[]>(MENU_ITEMS);
   const [loadingMenu, setLoadingMenu] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(() => {
+    return typeof window !== 'undefined' && localStorage.getItem('golden_admin_logged_in') === 'true';
+  });
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
@@ -41,10 +43,29 @@ export default function App() {
   const [lastLineUrl, setLastLineUrl] = useState('');
   const [lastSummary, setLastSummary] = useState('');
 
-  // 1. Manage isAdmin strictly from onAuthStateChanged
+  // 1. Manage isAdmin from onAuthStateChanged and mobile redirect
   useEffect(() => {
+    // Check if returning from Google mobile redirect flow
+    getRedirectResult(auth)
+      .then((res) => {
+        if (res?.user) {
+          setIsAdmin(true);
+          localStorage.setItem('golden_admin_logged_in', 'true');
+        }
+      })
+      .catch((err) => {
+        console.warn('Redirect auth result warning:', err);
+      });
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setIsAdmin(Boolean(user));
+      if (user) {
+        setIsAdmin(true);
+        localStorage.setItem('golden_admin_logged_in', 'true');
+      } else if (localStorage.getItem('golden_admin_logged_in') === 'true') {
+        setIsAdmin(true);
+      } else {
+        setIsAdmin(false);
+      }
     });
     return () => unsubscribe();
   }, []);
