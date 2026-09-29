@@ -36,8 +36,8 @@ export const ContactSection: React.FC = () => {
           </div>
           <h3 className="font-bold text-sm text-amber-950">ဖုန်းဆက်သွယ်ရန် (Phone)</h3>
           <div className="space-y-0.5 text-xs text-stone-600">
-            <a href="tel:09789123456" className="font-bold text-amber-900 hover:underline block">
-              09-789-123-456
+            <a href="tel:0647568863" className="font-bold text-amber-900 hover:underline block">
+              064-756-8863
             </a>
             <p className="text-[11px] text-stone-500">ကြိုတင်မှာယူမှု & Delivery</p>
           </div>

@@ -36,18 +36,17 @@ export const OrderSuccessModal: React.FC<OrderSuccessModalProps> = ({
 
   if (!isOpen) return null;
 
-  // Build lineUrl with LINE_OA_ID
-  const finalLineUrl =
-    lineUrl ||
-    waUrl ||
-    `https://line.me/R/oaMessage/${encodeURIComponent(LINE_OA_ID)}/?${encodeURIComponent(
-      orderSummary || ''
-    )}`;
-
-  // Detect mobile device via navigator.userAgent
+  // Build robust lineUrls
+  const cleanOaId = LINE_OA_ID.startsWith('@') ? LINE_OA_ID : `@${LINE_OA_ID}`;
+  const rawOaId = LINE_OA_ID.replace('@', '');
   const isMobile =
     typeof navigator !== 'undefined' &&
     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+  const directChatUrl = `https://line.me/R/ti/p/${encodeURIComponent(cleanOaId)}`;
+  const directPageUrl = `https://page.line.me/${rawOaId}`;
+  const encodedMsg = encodeURIComponent(orderSummary || '');
+  const shareMsgUrl = `https://line.me/R/msg/text/?${encodedMsg}`;
 
   const handleOpenLine = () => {
     // Copy to clipboard
@@ -58,12 +57,18 @@ export const OrderSuccessModal: React.FC<OrderSuccessModalProps> = ({
         .catch(() => {});
     }
 
-    // On mobile, use window.location.href; on desktop, use window.open
-    if (isMobile) {
-      window.location.href = finalLineUrl;
-    } else {
-      window.open(finalLineUrl, '_blank', 'noopener,noreferrer');
+    const target = isMobile ? directChatUrl : directPageUrl;
+    window.open(target, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleShareDirectly = () => {
+    if (orderSummary && typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+      navigator.clipboard
+        .writeText(orderSummary)
+        .then(() => setCopied(true))
+        .catch(() => {});
     }
+    window.open(shareMsgUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -98,7 +103,7 @@ export const OrderSuccessModal: React.FC<OrderSuccessModalProps> = ({
           </p>
         </div>
 
-        {/* Line Action Button */}
+        {/* Line Action Buttons */}
         <div className="space-y-2 pt-1">
           <button
             type="button"
@@ -108,13 +113,21 @@ export const OrderSuccessModal: React.FC<OrderSuccessModalProps> = ({
             <span className="bg-white text-[#06C755] text-[10px] font-black px-1.5 py-0.5 rounded-sm">
               LINE
             </span>
-            <span>Line စကားပြောခန်းသို့ သွားရန်</span>
+            <span>Golden Kitchen LINE Chat သို့ တိုက်ရိုက်သွားရန်</span>
             <ExternalLink className="w-3.5 h-3.5" />
+          </button>
+
+          <button
+            type="button"
+            onClick={handleShareDirectly}
+            className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold text-xs transition-all cursor-pointer"
+          >
+            <span>💬 LINE ထဲသို့ Order စာသား အလိုအလျောက် ပို့မည်</span>
           </button>
 
           {/* Small Note Under Button as requested */}
           <p className="text-[11px] text-stone-500 font-medium">
-            📱 ဖုန်းနဲ့ဖွင့်ထားရင် LINE app ချက်ချင်း ပွင့်ပါလိမ့်မည်
+            📱 ဖုန်းတွင် LINE App သို့ တိုက်ရိုက်ရောက်ရှိမည်ဖြစ်ပြီး ကွန်ပျူတာတွင် ဆိုင်၏ Profile တိုက်ရိုက်ပွင့်ပါမည်
           </p>
 
           {/* Auto-copy notice */}

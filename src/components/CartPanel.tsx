@@ -118,10 +118,21 @@ export const CartPanel: React.FC<CartPanelProps> = ({
                 key={item.itemId}
                 className="pt-3 first:pt-0 flex items-center justify-between gap-3 group"
               >
-                {/* Left: Emoji + Name + Unit Price */}
+                {/* Left: Food Image / Emoji + Name + Unit Price */}
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-amber-100 to-orange-50 border border-amber-200/60 flex items-center justify-center text-2xl shrink-0 shadow-xs">
-                    {item.emoji || '🍲'}
+                  <div className="w-14 h-14 rounded-2xl bg-amber-100/80 border border-amber-200/90 overflow-hidden flex items-center justify-center text-2xl shrink-0 shadow-2xs">
+                    {item.imageUrl ? (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <span>{item.emoji || '🍲'}</span>
+                    )}
                   </div>
                   <div className="min-w-0">
                     <h4 className="font-bold text-sm text-amber-950 truncate">

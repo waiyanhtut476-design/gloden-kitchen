@@ -60,12 +60,72 @@
         }
       },
       "required": ["name", "category", "price", "emoji"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "A food order placed by a customer at Golden Monstate Kitchen",
+      "type": "object",
+      "properties": {
+        "customerName": {
+          "type": "string",
+          "description": "Customer full name",
+          "maxLength": 100
+        },
+        "phone": {
+          "type": "string",
+          "description": "Customer contact phone number",
+          "maxLength": 30
+        },
+        "orderType": {
+          "type": "string",
+          "description": "Delivery or pickup",
+          "enum": ["delivery", "pickup"]
+        },
+        "address": {
+          "type": "string",
+          "description": "Delivery address",
+          "maxLength": 300
+        },
+        "note": {
+          "type": "string",
+          "description": "Special cooking instructions or delivery notes",
+          "maxLength": 300
+        },
+        "items": {
+          "type": "array",
+          "description": "List of ordered dishes and quantities"
+        },
+        "totalAmount": {
+          "type": "number",
+          "description": "Total order price in Kyats"
+        },
+        "status": {
+          "type": "string",
+          "description": "Order fulfillment status",
+          "enum": ["pending", "confirmed", "preparing", "delivered", "cancelled"]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Order creation timestamp"
+        },
+        "orderNumber": {
+          "type": "string",
+          "description": "Short human-readable order code",
+          "maxLength": 20
+        }
+      },
+      "required": ["customerName", "phone", "orderType", "items", "totalAmount", "status", "createdAt"]
     }
   },
   "firestore": {
     "/menuItems/{itemId}": {
       "schema": "MenuItem",
       "description": "Menu items available at Golden Monstate Kitchen"
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Past and active customer orders for Golden Monstate Kitchen"
     }
   }
 }

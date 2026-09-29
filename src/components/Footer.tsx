@@ -42,8 +42,8 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdminLogin, isAdmin }) => 
             <div className="space-y-2.5 text-xs sm:text-sm text-amber-200/80">
               <p className="flex items-center gap-2.5">
                 <span className="text-amber-400 text-base">📞</span>
-                <a href="tel:09789123456" className="hover:text-amber-300 transition-colors font-medium">
-                  09-789-123-456
+                <a href="tel:0647568863" className="hover:text-amber-300 transition-colors font-medium">
+                  064-756-8863
                 </a>
               </p>
               <p className="flex items-center gap-2.5">
@@ -52,7 +52,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdminLogin, isAdmin }) => 
               </p>
               <p className="flex items-center gap-2.5">
                 <span className="text-amber-400 text-base">🛵</span>
-                <span>မော်လမြိုင်မြို့တွင်း နှင့် အနီးတစ်ဝိုက် Delivery</span>
+                <span>မြို့တွင်း နှင့် အနီးတစ်ဝိုက် Delivery</span>
               </p>
             </div>
           </div>
@@ -82,11 +82,11 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdminLogin, isAdmin }) => 
         {/* Quick Contact Summary Bar (Example format: 📞 ... | 🕒 ... | 📍 ...) */}
         <div className="bg-amber-950/60 rounded-2xl p-3 sm:p-4 border border-amber-800/30 text-center text-xs sm:text-sm text-amber-200/90 font-medium">
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
-            <span>📞 09-789-123-456</span>
+            <span>📞 064-756-8863</span>
             <span className="text-amber-600 hidden sm:inline">|</span>
             <span>🕒 10:00 AM – 9:00 PM</span>
             <span className="text-amber-600 hidden sm:inline">|</span>
-            <span>📍 မော်လမြိုင်မြို့တွင်း Delivery</span>
+            <span>📍 Delivery အိမ်အရောက်ပို့</span>
           </div>
         </div>
 
@@ -112,7 +112,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdminLogin, isAdmin }) => 
 
             {/* Viber */}
             <a
-              href="viber://chat?number=%2B959789123456"
+              href="viber://chat?number=%2B66647568863"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#7360F2]/20 hover:bg-[#7360F2]/40 text-[#A78BFA] border border-[#7360F2]/30 text-xs font-semibold transition-colors"
               title="Viber Chat"
             >
@@ -122,7 +122,7 @@ export const Footer: React.FC<FooterProps> = ({ onOpenAdminLogin, isAdmin }) => 
 
             {/* WhatsApp */}
             <a
-              href="https://wa.me/959789123456"
+              href="https://wa.me/66647568863"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#25D366]/20 hover:bg-[#25D366]/40 text-[#4ADE80] border border-[#25D366]/30 text-xs font-semibold transition-colors"

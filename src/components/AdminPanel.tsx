@@ -18,18 +18,21 @@ import {
   CheckCircle2,
   Flame,
   Layers,
-  Sparkles
+  Sparkles,
+  BarChart3,
+  ShoppingBag
 } from 'lucide-react';
 import { MenuItem, Category } from '../types/menu';
 import { CATEGORIES } from '../data/menu';
 import { auth } from '../lib/firebase';
 import { signOut } from 'firebase/auth';
+import { AdminOrdersTab } from './AdminOrdersTab';
 
 interface AdminPanelProps {
   isOpen: boolean;
   onClose: () => void;
   items: MenuItem[];
-  initialTab?: 'all' | 'single';
+  initialTab?: 'all' | 'single' | 'orders';
   onAddDish: (dish: Omit<MenuItem, 'id'>) => Promise<void>;
   onEditDish: (dish: MenuItem) => void;
   onSaveDish?: (dish: MenuItem) => Promise<void>;
@@ -50,8 +53,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   onDeleteDish,
   onSeedDishes,
 }) => {
-  // Main view tab: 'all' = Edit All Menus, 'single' = Add Single Dish
-  const [activeTab, setActiveTab] = useState<'all' | 'single'>(initialTab);
+  // Main view tab: 'all' = Edit All Menus, 'orders' = Past Orders & Sales Trends, 'single' = Add Single Dish
+  const [activeTab, setActiveTab] = useState<'all' | 'single' | 'orders'>(initialTab);
 
   // Sync tab if initialTab changes when opening
   useEffect(() => {
@@ -405,19 +408,19 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           </div>
         </div>
 
-        {/* View Switcher Tabs (All Menu Edit vs Single Add) */}
-        <div className="bg-amber-100/70 p-1.5 flex gap-1.5 border-b border-amber-900/10 shrink-0">
+        {/* View Switcher Tabs (All Menu Edit vs Orders & Trends vs Single Add) */}
+        <div className="bg-amber-100/70 p-1.5 flex flex-wrap sm:flex-nowrap gap-1.5 border-b border-amber-900/10 shrink-0">
           <button
             type="button"
             onClick={() => setActiveTab('all')}
-            className={`flex-1 py-2 px-3 text-xs sm:text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer ${
+            className={`flex-1 min-w-[120px] py-2 px-3 text-xs sm:text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer ${
               activeTab === 'all'
                 ? 'bg-amber-800 text-amber-50 shadow-xs'
                 : 'text-stone-700 hover:text-stone-900 hover:bg-white/60'
             }`}
           >
             <Layers className="w-4 h-4 text-amber-300" />
-            <span>⚡ မီနူးအားလုံး ပြင်ဆင်ရန် (Edit All Menus - {items.length})</span>
+            <span>⚡ မီနူးအားလုံး ပြင်ရန် ({items.length})</span>
             {dirtyIds.size > 0 && (
               <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-red-500 text-white font-extrabold animate-pulse">
                 {dirtyIds.size} ခု ပြင်ထား
@@ -427,8 +430,21 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
           <button
             type="button"
+            onClick={() => setActiveTab('orders')}
+            className={`flex-1 min-w-[140px] py-2 px-3 text-xs sm:text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              activeTab === 'orders'
+                ? 'bg-amber-800 text-amber-50 shadow-xs'
+                : 'text-stone-700 hover:text-stone-900 hover:bg-white/60'
+            }`}
+          >
+            <BarChart3 className="w-4 h-4 text-amber-300" />
+            <span>📊 အော်ဒါနှင့် အရောင်းစာရင်း (Orders)</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => setActiveTab('single')}
-            className={`flex-1 py-2 px-3 text-xs sm:text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer ${
+            className={`flex-1 min-w-[120px] py-2 px-3 text-xs sm:text-sm font-bold rounded-xl flex items-center justify-center gap-2 transition-all cursor-pointer ${
               activeTab === 'single'
                 ? 'bg-amber-800 text-amber-50 shadow-xs'
                 : 'text-stone-700 hover:text-stone-900 hover:bg-white/60'
@@ -436,7 +452,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           >
             <Plus className="w-4 h-4 text-amber-300" />
             <span>
-              {editingItem ? 'ဟင်းလျာ ပြင်ဆင်နေသည်' : 'ဟင်းလျာ အသစ်ထည့်ရန် (Add New)'}
+              {editingItem ? 'ဟင်းလျာ ပြင်ဆင်နေသည်' : 'ဟင်းလျာ အသစ်ထည့်ရန်'}
             </span>
           </button>
         </div>
@@ -1178,6 +1194,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 </div>
               </div>
             </div>
+          )}
+
+          {/* ========================================================= */}
+          {/* TAB 3: PAST ORDERS & SALES TRENDS ANALYTICS               */}
+          {/* ========================================================= */}
+          {activeTab === 'orders' && (
+            <AdminOrdersTab menuItems={items} />
           )}
 
         </div>

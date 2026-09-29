@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { X, Truck, Store, Phone, User, MapPin, FileText } from 'lucide-react';
 import { CartItem } from '../types/menu';
+import { db, hasFirebaseConfig } from '../lib/firebase';
+import { doc, setDoc } from 'firebase/firestore';
 
 // LINE Official Account configurations
 export const LINE_OA_ID = '@602xywtq';
@@ -73,8 +75,58 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     const orderSummaryText = `Order: ${itemsPart} — စုစုပေါင်း ${totalAmount.toLocaleString()} ကျပ်။ အမည်: ${name.trim()}, ဖုန်း: ${phone.trim()}, ${destinationPart}${notePart}`;
     const encodedText = encodeURIComponent(orderSummaryText);
 
-    // Dynamic link using LINE_OA_ID constant
-    const lineUrl = `https://line.me/R/oaMessage/${LINE_OA_ID}/?${encodedText}`;
+    // Save order to Firestore if configured
+    const orderId = `ord-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+    const orderNumber = `#${Math.floor(1000 + Math.random() * 9000)}`;
+
+    if (hasFirebaseConfig) {
+      try {
+        const orderData = {
+          customerName: name.trim(),
+          phone: phone.trim(),
+          orderType,
+          address: address.trim() || undefined,
+          note: note.trim() || undefined,
+          items: cartItems.map((it) => ({
+            itemId: it.itemId,
+            name: it.name,
+            price: it.price,
+            quantity: it.quantity,
+            emoji: it.emoji || '🍲',
+            imageUrl: it.imageUrl || undefined,
+          })),
+          totalAmount,
+          status: 'pending',
+          createdAt: new Date().toISOString(),
+          orderNumber,
+        };
+
+        // Filter undefined fields for Firestore
+        const cleanPayload = Object.fromEntries(
+          Object.entries(orderData).filter(([_, v]) => v !== undefined)
+        );
+
+        setDoc(doc(db, 'orders', orderId), cleanPayload).catch((err) => {
+          console.warn('Could not save order to Firestore:', err);
+        });
+      } catch (err) {
+        console.warn('Failed to initiate Firestore order write:', err);
+      }
+    }
+
+    // Format valid LINE OA URLs that won't redirect to line.me/en
+    const cleanOaId = LINE_OA_ID.startsWith('@') ? LINE_OA_ID : `@${LINE_OA_ID}`;
+    const rawOaId = LINE_OA_ID.replace('@', '');
+    
+    // Check if on mobile device
+    const isMobileDevice =
+      typeof navigator !== 'undefined' &&
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    // Reliable LINE OA URL: on mobile uses LINE OA chat deep-link; on desktop opens LINE OA Profile page
+    const lineChatUrl = `https://line.me/R/ti/p/${encodeURIComponent(cleanOaId)}`;
+    const linePageUrl = `https://page.line.me/${rawOaId}`;
+    const targetLineUrl = isMobileDevice ? lineChatUrl : linePageUrl;
 
     // Background webhook trigger
     try {
@@ -83,6 +135,8 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           restaurant: LINE_NAME,
+          orderId,
+          orderNumber,
           customerName: name.trim(),
           phone: phone.trim(),
           orderType,
@@ -96,11 +150,16 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       }).catch(() => {});
     } catch {}
 
+    // Copy to clipboard automatically so user has text ready
+    if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+      navigator.clipboard.writeText(orderSummaryText).catch(() => {});
+    }
+
     try {
-      window.open(lineUrl, '_blank', 'noopener,noreferrer');
+      window.open(targetLineUrl, '_blank', 'noopener,noreferrer');
     } catch {}
 
-    onOrderSuccess(orderSummaryText, lineUrl);
+    onOrderSuccess(orderSummaryText, targetLineUrl);
   };
 
   return (
@@ -246,13 +305,29 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               </span>
             </div>
 
-            <div className="space-y-1.5 max-h-32 overflow-y-auto pr-1">
+            <div className="space-y-2 max-h-36 overflow-y-auto pr-1">
               {cartItems.map((item) => (
-                <div key={item.itemId} className="flex justify-between items-center text-xs text-stone-700">
-                  <span className="truncate pr-2">
-                    {item.emoji} {item.name} <span className="text-stone-500">×{item.quantity}</span>
-                  </span>
-                  <span className="font-semibold text-amber-950 shrink-0">
+                <div key={item.itemId} className="flex justify-between items-center text-xs text-stone-700 py-0.5">
+                  <div className="flex items-center gap-2 min-w-0 pr-2">
+                    <div className="w-9 h-9 rounded-xl bg-amber-100 border border-amber-200/80 overflow-hidden flex items-center justify-center text-base shrink-0 shadow-2xs">
+                      {item.imageUrl ? (
+                        <img
+                          src={item.imageUrl}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = 'none';
+                          }}
+                        />
+                      ) : (
+                        <span>{item.emoji || '🍲'}</span>
+                      )}
+                    </div>
+                    <span className="truncate font-medium text-stone-800">
+                      {item.name} <span className="text-stone-500 font-normal">×{item.quantity}</span>
+                    </span>
+                  </div>
+                  <span className="font-bold text-amber-950 shrink-0">
                     {(item.price * item.quantity).toLocaleString()} ကျပ်
                   </span>
                 </div>

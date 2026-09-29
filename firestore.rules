@@ -36,6 +36,20 @@ service cloud.firestore {
         (!('imageUrl' in data) || (data.imageUrl is string && data.imageUrl.size() <= 2097152));
     }
 
+    function isValidOrder(data) {
+      return data.keys().hasAll(['customerName', 'phone', 'orderType', 'items', 'totalAmount', 'status', 'createdAt']) &&
+        data.customerName is string && data.customerName.size() > 0 && data.customerName.size() <= 100 &&
+        data.phone is string && data.phone.size() > 0 && data.phone.size() <= 30 &&
+        (data.orderType == 'delivery' || data.orderType == 'pickup') &&
+        data.totalAmount is number && data.totalAmount >= 0 &&
+        data.items is list && data.items.size() > 0 && data.items.size() <= 50 &&
+        (data.status == 'pending' || data.status == 'confirmed' || data.status == 'preparing' || data.status == 'delivered' || data.status == 'cancelled') &&
+        data.createdAt is string && data.createdAt.size() <= 50 &&
+        (!('address' in data) || (data.address is string && data.address.size() <= 300)) &&
+        (!('note' in data) || (data.note is string && data.note.size() <= 300)) &&
+        (!('orderNumber' in data) || (data.orderNumber is string && data.orderNumber.size() <= 20));
+    }
+
     // Menu Items Collection
     match /menuItems/{itemId} {
       // Anyone can view the menu items
@@ -45,6 +59,16 @@ service cloud.firestore {
       allow create: if isAdmin() && isValidId(itemId) && isValidMenuItem(request.resource.data);
       allow update: if isAdmin() && isValidId(itemId) && isValidMenuItem(request.resource.data);
       allow delete: if isAdmin() && isValidId(itemId);
+    }
+
+    // Customer Orders Collection
+    match /orders/{orderId} {
+      // Admin can view, list, update status, and manage all past orders
+      allow get, list: if isAdmin();
+      allow update, delete: if isAdmin() && isValidId(orderId);
+
+      // Anyone (customers) placing an order can create an order record
+      allow create: if isValidId(orderId) && isValidOrder(request.resource.data);
     }
   }
 }

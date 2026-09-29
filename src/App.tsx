@@ -26,7 +26,7 @@ export default function App() {
 
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isAdminPanelOpen, setIsAdminPanelOpen] = useState(false);
-  const [adminPanelTab, setAdminPanelTab] = useState<'all' | 'single'>('all');
+  const [adminPanelTab, setAdminPanelTab] = useState<'all' | 'single' | 'orders'>('all');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingDish, setEditingDish] = useState<MenuItem | null>(null);
 

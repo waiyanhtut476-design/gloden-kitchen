@@ -29,3 +29,28 @@ export interface CartItem {
   emoji?: string;
   imageUrl?: string;
 }
+
+export type OrderStatus = 'pending' | 'confirmed' | 'preparing' | 'delivered' | 'cancelled';
+
+export interface OrderItem {
+  itemId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  emoji?: string;
+  imageUrl?: string;
+}
+
+export interface Order {
+  id: string;
+  customerName: string;
+  phone: string;
+  orderType: 'delivery' | 'pickup';
+  address?: string;
+  note?: string;
+  items: OrderItem[];
+  totalAmount: number;
+  status: OrderStatus;
+  createdAt: string;
+  orderNumber?: string;
+}
